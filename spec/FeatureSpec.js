@@ -59,5 +59,35 @@ describe('BowlingGame', function() {
       game.roll();
       expect(game.score).toEqual(23);
     });
+    it('properly calculates the score after a player has scored a single strike', function() {
+        spyOn(game, '_calculateRoll').and.returnValue(10);
+        game.roll();
+        game._calculateRoll = jasmine.createSpy().and.returnValue(3);
+        game.roll();
+        game.roll();
+        expect(game.score).toEqual(22);
+    });
+    it('properly calculates the score when a player scores a strike then a spare', function () {
+        spyOn(game, '_calculateRoll').and.returnValue(10);
+        game.roll();
+        game._calculateRoll = jasmine.createSpy().and.returnValue(5);
+        game.roll();
+        game.roll();
+        game._calculateRoll = jasmine.createSpy().and.returnValue(3);
+        game.roll();
+        game.roll();
+        expect(game.score).toEqual(39);
+    });
+    it('properly calculates the score when a player scores a spare then a strike', function () {
+        spyOn(game, '_calculateRoll').and.returnValue(5);
+        game.roll();
+        game.roll();
+        game._calculateRoll = jasmine.createSpy().and.returnValue(10);
+        game.roll();
+        game._calculateRoll = jasmine.createSpy().and.returnValue(3);
+        game.roll();
+        game.roll();
+        expect(game.score).toEqual(42);
+    });
   });
 });

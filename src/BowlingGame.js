@@ -6,7 +6,7 @@ function Game() {
 
   this.isStrike = false;
 
-  this.isSpare = false;
+  this.score = 0;
 
   this.pins = ALLPINS;
 
@@ -14,7 +14,7 @@ function Game() {
 
   this.bonus = 0;
 
-  this.score = 0;
+  this.isSpare = false;
 
   this.players = [];
 
@@ -27,15 +27,6 @@ Game.prototype.addPlayer = function(name) {
 
 Game.prototype._calculateRoll = function() {
     return Math.floor((Math.random() * 11));
-};
-
-Game.prototype.firstRollOpen = function(roll) {
-    if(this.isSpare) {
-        this.bankBonus(roll);
-        this.addBonus();
-    }
-      this.pins -= roll;
-      this.isSecondRoll = true;
 };
 
 Game.prototype.bankBonus = function(score) {
@@ -53,33 +44,70 @@ Game.prototype.addBonus = function() {
     this.reset();
 };
 
-Game.prototype.scoredSpare = function() {
+Game.prototype.firstRollOpen = function(roll) {
+    if (this.isStrike && this.isSpare) {
+        this.bankBonus(roll);
+        this.addBonus();
+    } else
+    if (this.isStrike) {
+        this.bankBonus(roll);
+    } else
+    if(this.isSpare) {
+        this.bankBonus(roll);
+        this.addBonus();
+    }
+      this.pins -= roll;
+      this.isSecondRoll = true;
+};
+
+Game.prototype.scoredSpare = function(remainingPins) {
+        if(this.isStrike) {
+          this.bankBonus(remainingPins);
           this.bankBonus(ALLPINS);
+        } else {
+          this.bankBonus(ALLPINS);
+        }
           this.isSpare = true;
           this.newFrame();
+};
+
+Game.prototype.scoredStrike = function() {
+      if(this.isSpare) {
+          this.bankBonus(ALLPINS);
+          this.addBonus();
+      }
+      if(this.isStrike) {
+        this.bankBonus(ALLPINS);
+      }
+      this.bankBonus(ALLPINS);
+      this.isStrike = true;
+      this.newFrame();
 };
 
 Game.prototype.scoredOpen = function(roll) {
         if(this.isSpare) {
             this.bankBonus(roll);
             this.addBonus();
+        } else
+        if(this.isStrike) {
+            this.bankBonus(roll);
+            this.addBonus();
         }
+        //console.log(this.score + " is the score");
+        //console.log(this.pins + " is the pins");
+        //console.log(roll + " is the roll");
         this.score += ((ALLPINS - this.pins) + roll);
         this.newFrame();
-};
-
-Game.prototype.scoredStrike = function() {
-      this.isStrike = true;
-      this.newFrame();
 };
 
 Game.prototype.roll = function() {
     var roll = this._calculateRoll();
     console.log(roll);
     console.log(this);
+    //debugger;
     if(this.isSecondRoll) {
       if(roll >= this.pins) {
-        this.scoredSpare();
+        this.scoredSpare(this.pins);
       } else
         this.scoredOpen(roll);
     } else
